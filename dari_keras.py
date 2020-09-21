@@ -77,7 +77,6 @@ class Buffer:
         self.buffer_counter += 1
 
     # We compute the loss and update parameters
-    @tf.function
     def learn(self):
         # Get sampling range
         record_range = min(self.buffer_counter, self.buffer_capacity)
@@ -187,7 +186,7 @@ def policy(state, noise_object):
     # We make sure action is within bounds
     legal_action = np.clip(sampled_actions, lower_bound, upper_bound)
 
-    return [np.squeeze(legal_action)]
+    return legal_action
 
 std_dev = 0.2
 ou_noise = OUActionNoise(mean=np.zeros(1), std_deviation=float(std_dev) * np.ones(1))

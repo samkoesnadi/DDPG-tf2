@@ -1,46 +1,40 @@
 from common_definitions import *
 import random
+from collections import deque
 
 class ReplayBuffer():
     def __init__(self, buffer_size, batch_size):
-        self.buffer = list()  # (s,a,r,s',d)
+        self.buffer = deque()  # (s,a,r,s')
 
         # constant sizes
         self.buffer_size = buffer_size
         self.batch_size = batch_size
 
-    def append(self, s, a, r, sn, d):
+    def append(self, s, a, r, sn):
         if len(self.buffer) >= self.buffer_size:
-            self.buffer.pop(0)
+            self.buffer.popleft()
 
-        self.buffer.append([s, a, r, sn, d])
+        self.buffer.append([s, a, np.expand_dims(r, -1), sn])
 
     def get_batch(self, unbalance_p=True):
-        if len(self.buffer) < self.batch_size:
-            # buffer = self.buffer.copy()
-            # self.buffer.clear()
+        # unbalance indices
+        p_indices = None
+        if unbalance_p:
+            p_indices = np.log10(np.array(range(len(self.buffer)))+2)
+            p_indices /= np.sum(p_indices)
 
-            raise Exception("Buffer size insufficient: available", len(self.buffer))
-        else:
-            # unbalance indices
-            p_indices = None
-            if unbalance_p:
-                p_indices = np.log2(np.array(range(len(self.buffer)))+1.01)
-                p_indices /= np.sum(p_indices)
+        chosen_indices = np.random.choice(len(self.buffer),
+                                          size=min(self.batch_size, len(self.buffer)),
+                                          p=p_indices)
 
-            chosen_indices = np.random.choice(len(self.buffer),
-                                              size=self.batch_size,
-                                              replace=False,
-                                              p=p_indices)
+        # # sort it
+        # chosen_indices.sort()
+        #
+        # # run the iteration
+        # buffer = [self.buffer.pop(chosen_index-i_c) for i_c, chosen_index in enumerate(chosen_indices)]
 
-            # # sort it
-            # chosen_indices.sort()
-            #
-            # # run the iteration
-            # buffer = [self.buffer.pop(chosen_index-i_c) for i_c, chosen_index in enumerate(chosen_indices)]
+        buffer = [self.buffer[chosen_index] for chosen_index in chosen_indices]
 
-            buffer = [self.buffer[chosen_index] for chosen_index in chosen_indices]
-        # print(len(self.buffser))
         return buffer
 
 

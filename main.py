@@ -3,13 +3,15 @@ from model import *
 from common_definitions import *
 from buffer import *
 from tqdm import tqdm, trange
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     env = gym.make(RL_TASK)
     # env = gym.make('Pendulum-v0')
-    action_space_high = env.action_space.high
+    action_space_high = env.action_space.high[0]
+    action_space_low = env.action_space.low[0]
 
-    brain = Brain(env.observation_space.shape[0], env.action_space.shape[0], action_space_high)
+    brain = Brain(env.observation_space.shape[0], env.action_space.shape[0], action_space_high, action_space_low)
     tensorboard = Tensorboard(log_dir=TF_LOG_DIR)
 
     # load weights if available
@@ -20,6 +22,11 @@ if __name__ == "__main__":
     actions_squared = tf.keras.metrics.Mean('actions', dtype=tf.float32)
     Q_loss = tf.keras.metrics.Mean('Q_loss', dtype=tf.float32)
     A_loss = tf.keras.metrics.Mean('A_loss', dtype=tf.float32)
+
+    # To store reward history of each episode
+    ep_reward_list = []
+    # To store average reward history of last few episodes
+    avg_reward_list = []
 
     # run iteration
     with trange(TOTAL_EPISODES) as t:
@@ -34,26 +41,31 @@ if __name__ == "__main__":
                 if RENDER_ENV: env.render()  # render the environment into GUI
 
                 # Recieve state and reward from environment.
-                cur_act = brain.act(tf.expand_dims(prev_state,0), ep >= WARM_UP)
+                cur_act = brain.act(tf.expand_dims(prev_state,0), _notrandom=(ep >= WARM_UP))
 
                 # print(cur_act.shape)
-                state, reward, done, info = env.step(cur_act)
-                prev_state = state
-                acc_reward(reward)
-                actions_squared(np.square(cur_act/action_space_high))
-
-                brain.remember(prev_state, reward, state, int(done))
+                state, reward, done, _ = env.step(cur_act)
+                brain.remember(prev_state, reward, state)
 
                 # update weights
-                if len(brain.buffer.buffer) >= BATCH_SIZE:
-                    c, a = brain.learn(brain.buffer.get_batch(unbalance_p=UNBALANCE_P))
-                    Q_loss(c)
-                    A_loss(a)
+                c, a = brain.learn(brain.buffer.get_batch(unbalance_p=UNBALANCE_P))
+                Q_loss(c)
+                A_loss(a)
 
                 if done: break
 
+                # post update for next step
+                acc_reward(reward)
+                actions_squared(np.square(cur_act/action_space_high))
+                prev_state = state
+
+            ep_reward_list.append(acc_reward.result().numpy())
+            # Mean of last 40 episodes
+            avg_reward = np.mean(ep_reward_list[-40:])
+            avg_reward_list.append(avg_reward)
+
             # print the average reward
-            t.set_postfix(r=acc_reward.result().numpy())
+            t.set_postfix(r=avg_reward)
             tensorboard(ep, acc_reward, actions_squared, Q_loss, A_loss)
 
             # save weights
@@ -64,3 +76,10 @@ if __name__ == "__main__":
     brain.save_weights(CHECKPOINTS_PATH)
 
     print("Training done...")
+
+    # Plotting graph
+    # Episodes versus Avg. Rewards
+    plt.plot(avg_reward_list)
+    plt.xlabel("Episode")
+    plt.ylabel("Avg. Epsiodic Reward")
+    plt.show()
