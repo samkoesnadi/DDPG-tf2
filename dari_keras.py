@@ -203,8 +203,8 @@ target_actor.set_weights(actor_model.get_weights())
 target_critic.set_weights(critic_model.get_weights())
 
 # Learning rate for actor-critic models
-critic_lr = 1e-3
-actor_lr = 1e-4
+critic_lr = 0.002
+actor_lr = 0.001
 
 critic_optimizer = tf.keras.optimizers.Adam(critic_lr)
 actor_optimizer = tf.keras.optimizers.Adam(actor_lr)
@@ -213,9 +213,9 @@ total_episodes = 100
 # Discount factor for future rewards
 gamma = 0.99
 # Used to update target networks
-tau = 0.001
+tau = 0.005
 
-buffer = Buffer(1000000, 64)
+buffer = Buffer(50000, 64)
 
 # To store reward history of each episode
 ep_reward_list = []
@@ -231,7 +231,7 @@ for ep in range(total_episodes):
     while True:
         # Uncomment this to see the Actor in action
         # But not in a python notebook.
-        env.render()
+        # env.render()
 
         tf_prev_state = tf.expand_dims(tf.convert_to_tensor(prev_state), 0)
 

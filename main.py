@@ -5,8 +5,8 @@ from buffer import *
 from tqdm import tqdm, trange
 
 if __name__ == "__main__":
-    # env = gym.make('BipedalWalker-v2')
-    env = gym.make('Pendulum-v0')
+    env = gym.make(RL_TASK)
+    # env = gym.make('Pendulum-v0')
     action_space_high = env.action_space.high
 
     brain = Brain(env.observation_space.shape[0], env.action_space.shape[0], action_space_high)
