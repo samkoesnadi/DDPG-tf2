@@ -1,3 +1,4 @@
 tensorflow-gpu
 tqdm
 gym
+box2d-py
