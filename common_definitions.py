@@ -3,7 +3,7 @@ import numpy as np
 
 
 # general parameters
-RL_TASK = 'BipedalWalker-v2'
+RL_TASK = 'BipedalWalker-v3'
 RENDER_ENV = True
 CHECKPOINTS_PATH = "./checkpoints/DDPG_"
 TF_LOG_DIR = './logs/DDPG/'
