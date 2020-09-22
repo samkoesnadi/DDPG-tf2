@@ -14,10 +14,9 @@ def ActorNetwork(num_states=24, num_actions=4, action_high=1):
     last_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
 
     inputs = tf.keras.layers.Input(shape=(num_states,), dtype=tf.float32)
-    out = tf.keras.layers.Dense(256, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(inputs)
+    out = tf.keras.layers.Dense(512, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(inputs)
     out = tf.keras.layers.BatchNormalization()(out)
-    out = tf.keras.layers.Dropout(DROUPUT_N)(out)
-    out = tf.keras.layers.Dense(512, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(out)
+    out = tf.keras.layers.Dense(256, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(out)
     out = tf.keras.layers.BatchNormalization()(out)
     out = tf.keras.layers.Dropout(DROUPUT_N)(out)
     outputs = tf.keras.layers.Dense(num_actions, activation="tanh", kernel_initializer=last_init)(out) * action_high
@@ -31,21 +30,20 @@ def CriticNetwork(num_states=24, num_actions=4, action_high=1):
 
     # State as input
     state_input = tf.keras.layers.Input(shape=(num_states), dtype=tf.float32)
-    state_out = tf.keras.layers.Dense(256, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_input)
+    state_out = tf.keras.layers.Dense(512, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_input)
     state_out = tf.keras.layers.BatchNormalization()(state_out)
+    state_out = tf.keras.layers.Dense(256, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_out)
 
     # Action as input
     action_input = tf.keras.layers.Input(shape=(num_actions), dtype=tf.float32)
-    action_out = tf.keras.layers.BatchNormalization()(action_input)  # no NN here
-    action_out = action_input / action_high
+    action_out = tf.keras.layers.Dense(256, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(action_input/action_high)
 
     # Both are passed through seperate layer before concatenating
-    concat = tf.keras.layers.Concatenate()([state_out, action_out])
+    added = tf.keras.layers.Add()([state_out, action_out])
 
-    out = tf.keras.layers.Dense(512, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(concat)
-    out = tf.keras.layers.BatchNormalization()(out)
-    out = tf.keras.layers.Dropout(DROUPUT_N)(out)
-    outputs = tf.keras.layers.Dense(1, kernel_initializer=last_init)(out)
+    outs = tf.keras.layers.Dense(128, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(added)
+    outs = tf.keras.layers.Dropout(DROUPUT_N)(outs)
+    outputs = tf.keras.layers.Dense(1, kernel_initializer=last_init)(outs)
 
     # Outputs single value for give state-action
     model = tf.keras.Model([state_input, action_input], outputs)
@@ -82,8 +80,8 @@ class Brain:
         self.noise = OUActionNoise(mean=np.zeros(1), std_deviation=float(std_dev) * np.ones(1))
 
         # optimizers
-        self.critic_optimizer = tf.keras.optimizers.Adam(CRITIC_LR, clipvalue=1e-3, amsgrad=True)
-        self.actor_optimizer = tf.keras.optimizers.Adam(ACTOR_LR, clipvalue=1e-3, amsgrad=True)
+        self.critic_optimizer = tf.keras.optimizers.Adam(CRITIC_LR, amsgrad=True)
+        self.actor_optimizer = tf.keras.optimizers.Adam(ACTOR_LR, amsgrad=True)
 
         # temporary variable for side effects
         self.cur_action = None

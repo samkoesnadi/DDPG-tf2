@@ -13,7 +13,7 @@ EPS_GREEDY = 0.95
 
 # brain parameters
 GAMMA = 0.99  # for the temporal difference
-RHO = 0.0005  # to update the target networks
+RHO = 0.001  # to update the target networks
 KERNEL_INITIALIZER = tf.keras.initializers.glorot_normal()
 
 # buffer params
@@ -22,11 +22,11 @@ BUFFER_UNBALANCE_GAP = 0.5
 
 # training parameters
 STD_DEV = 0.2
-BATCH_SIZE = 64
-BUFFER_SIZE = 1e5
+BATCH_SIZE = 256
+BUFFER_SIZE = 1e6
 TOTAL_EPISODES = 10000
-CRITIC_LR = 5e-4
+CRITIC_LR = 1e-3
 ACTOR_LR = 1e-4
-DROUPUT_N = 0.2
+DROUPUT_N = 0.05
 WARM_UP = 3  # num of warm up epochs
 SAVE_WEIGHTS = True
