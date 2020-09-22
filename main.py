@@ -42,15 +42,17 @@ if __name__ == "__main__":
                 if RENDER_ENV: env.render()  # render the environment into GUI
 
                 # Recieve state and reward from environment.
-                cur_act = brain.act(tf.expand_dims(prev_state,0), _notrandom=(ep >= WARM_UP) and (random.random() < EPS_GREEDY+(1-EPS_GREEDY)*ep/TOTAL_EPISODES))
+                cur_act = brain.act(tf.expand_dims(prev_state,0), _notrandom=(ep >= WARM_UP) and (random.random() < EPS_GREEDY+(1-EPS_GREEDY)*ep/TOTAL_EPISODES),
+                                    noise=USE_NOISE)
                 state, reward, done, _ = env.step(cur_act)
                 # print(cur_act)
                 brain.remember(prev_state, reward, state, int(done))
 
                 # update weights
-                c, a = brain.learn(brain.buffer.get_batch(unbalance_p=UNBALANCE_P))
-                Q_loss(c)
-                A_loss(a)
+                if LEARN:
+                    c, a = brain.learn(brain.buffer.get_batch(unbalance_p=UNBALANCE_P))
+                    Q_loss(c)
+                    A_loss(a)
 
                 # post update for next step
                 acc_reward(reward)

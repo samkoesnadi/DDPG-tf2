@@ -15,10 +15,11 @@ def ActorNetwork(num_states=24, num_actions=4, action_high=1):
     last_init = tf.random_uniform_initializer(minval=-0.0003, maxval=0.0003)
 
     inputs = tf.keras.layers.Input(shape=(num_states,), dtype=tf.float32)
-    out = tf.keras.layers.Dense(600, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(inputs)
-    # out = tf.keras.layers.BatchNormalization()(out)
+    out = tf.keras.layers.BatchNormalization()(inputs)
+    out = tf.keras.layers.Dense(600, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(out)
+    out = tf.keras.layers.BatchNormalization()(out)
     out = tf.keras.layers.Dense(300, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(out)
-    # out = tf.keras.layers.BatchNormalization()(out)
+    out = tf.keras.layers.BatchNormalization()(out)
     # out = tf.keras.layers.Dropout(DROUPUT_N)(out)
     outputs = tf.keras.layers.Dense(num_actions, activation="tanh", kernel_initializer=last_init)(out) * action_high
 
@@ -32,19 +33,23 @@ def CriticNetwork(num_states=24, num_actions=4, action_high=1):
 
     # State as input
     state_input = tf.keras.layers.Input(shape=(num_states), dtype=tf.float32)
-    state_out = tf.keras.layers.Dense(600, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_input)
+    state_out = tf.keras.layers.BatchNormalization()(state_input)
+    state_out = tf.keras.layers.Dense(600, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_out)
     state_out = tf.keras.layers.BatchNormalization()(state_out)
     state_out = tf.keras.layers.Dense(300, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_out)
 
     # Action as input
     action_input = tf.keras.layers.Input(shape=(num_actions), dtype=tf.float32)
-    action_out = tf.keras.layers.Dense(300, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(action_input/action_high)
+    action_out = tf.keras.layers.BatchNormalization()(action_input)
+    action_out = tf.keras.layers.Dense(300, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(action_out/action_high)
 
     # Both are passed through seperate layer before concatenating
     added = tf.keras.layers.Add()([state_out, action_out])
 
+    added = tf.keras.layers.BatchNormalization()(added)
     outs = tf.keras.layers.Dense(150, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(added)
-    outs = tf.keras.layers.Dropout(DROUPUT_N)(outs)
+    outs = tf.keras.layers.BatchNormalization()(outs)
+    # outs = tf.keras.layers.Dropout(DROUPUT_N)(outs)
     outputs = tf.keras.layers.Dense(1, kernel_initializer=last_init)(outs)
 
     # Outputs single value for give state-action
@@ -73,7 +78,7 @@ class Brain:
         self.critic_target.set_weights(self.critic_network.get_weights())
 
         self.buffer = ReplayBuffer(BUFFER_SIZE, BATCH_SIZE)
-        self.gamma = gamma
+        self.gamma = tf.constant(gamma)
         self.rho = rho
         self.action_high = action_high
         self.action_low = action_low
@@ -110,14 +115,13 @@ class Brain:
                 actor_loss = -tf.math.reduce_mean(self.critic_network([s, self.actor_network(s)]))
             actor_grad = tape.gradient(actor_loss, self.actor_network.trainable_variables)
             self.actor_optimizer.apply_gradients(zip(actor_grad, self.actor_network.trainable_variables))
-
             return critic_loss, actor_loss
         self.update_weights = update_weights
 
-    def act(self, state, _notrandom=True):
+    def act(self, state, _notrandom=True, noise=True):
         self.cur_action = (self.actor_network(state)[0].numpy()
             if _notrandom
-            else np.random.uniform(self.action_low, self.action_high, self.num_actions)) + self.noise()
+            else np.random.uniform(self.action_low, self.action_high, self.num_actions)) + (self.noise() if noise else 0)
         self.cur_action = np.clip(self.cur_action, self.action_low, self.action_high)
 
         return self.cur_action
@@ -128,7 +132,12 @@ class Brain:
 
     def learn(self, entry):
         s,a,r,sn,d = zip(*entry)
-        c_l, a_l = self.update_weights(s,a,r,sn,d)
+
+        c_l, a_l = self.update_weights(tf.convert_to_tensor(s, dtype=tf.float32),
+                                       tf.convert_to_tensor(a, dtype=tf.float32),
+                                       tf.convert_to_tensor(r, dtype=tf.float32),
+                                       tf.convert_to_tensor(sn, dtype=tf.float32),
+                                       tf.convert_to_tensor(d, dtype=tf.float32))
 
         update_target(self.actor_target, self.actor_network, self.rho)
         update_target(self.critic_target, self.critic_network, self.rho)
