@@ -10,6 +10,9 @@ class ReplayBuffer():
         self.buffer_size = buffer_size
         self.batch_size = batch_size
 
+        # temp variable
+        self.p_indices = [BUFFER_UNBALANCE_GAP/2]
+
     def append(self, s, a, r, sn):
         if len(self.buffer) >= self.buffer_size:
             self.buffer.popleft()
@@ -20,11 +23,13 @@ class ReplayBuffer():
         # unbalance indices
         p_indices = None
         if unbalance_p:
-            p_indices = np.log10(np.array(range(len(self.buffer)))+2)
-            p_indices /= np.sum(p_indices)
+            # self.p_indices.extend(np.log2(np.array(range(len(self.p_indices), len(self.buffer)))+2))
+            self.p_indices.extend((np.arange(len(self.buffer)-len(self.p_indices))+1)*BUFFER_UNBALANCE_GAP+self.p_indices[-1])
+            p_indices = self.p_indices / np.sum(self.p_indices)
 
         chosen_indices = np.random.choice(len(self.buffer),
                                           size=min(self.batch_size, len(self.buffer)),
+                                          replace=False,
                                           p=p_indices)
 
         # # sort it

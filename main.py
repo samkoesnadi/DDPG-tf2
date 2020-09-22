@@ -36,14 +36,13 @@ if __name__ == "__main__":
             actions_squared.reset_states()
             Q_loss.reset_states()
             A_loss.reset_states()
+            brain.noise.reset()
 
             while True:
                 if RENDER_ENV: env.render()  # render the environment into GUI
 
                 # Recieve state and reward from environment.
-                cur_act = brain.act(tf.expand_dims(prev_state,0), _notrandom=(ep >= WARM_UP))
-
-                # print(cur_act.shape)
+                cur_act = brain.act(tf.expand_dims(prev_state,0), _notrandom=(ep >= WARM_UP) and (random.random() < EPS_GREEDY+(1-EPS_GREEDY)*ep/TOTAL_EPISODES))
                 state, reward, done, _ = env.step(cur_act)
                 brain.remember(prev_state, reward, state)
 
@@ -70,7 +69,7 @@ if __name__ == "__main__":
 
             # save weights
             if ep % 5 == 0:
-                brain.save_weights(CHECKPOINTS_PATH)
+                if SAVE_WEIGHTS: brain.save_weights(CHECKPOINTS_PATH)
 
     env.close()
     brain.save_weights(CHECKPOINTS_PATH)
