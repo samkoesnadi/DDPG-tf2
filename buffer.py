@@ -13,16 +13,16 @@ class ReplayBuffer():
         # temp variable
         self.p_indices = [BUFFER_UNBALANCE_GAP/2]
 
-    def append(self, s, a, r, sn):
+    def append(self, s, a, r, sn, d):
         if len(self.buffer) >= self.buffer_size:
             self.buffer.popleft()
 
-        self.buffer.append([s, a, np.expand_dims(r, -1), sn])
+        self.buffer.append([s, a, np.expand_dims(r, -1), sn, np.expand_dims(d, -1)])
 
     def get_batch(self, unbalance_p=True):
         # unbalance indices
         p_indices = None
-        if unbalance_p:
+        if random.random() < unbalance_p:
             # self.p_indices.extend(np.log2(np.array(range(len(self.p_indices), len(self.buffer)))+2))
             self.p_indices.extend((np.arange(len(self.buffer)-len(self.p_indices))+1)*BUFFER_UNBALANCE_GAP+self.p_indices[-1])
             p_indices = self.p_indices / np.sum(self.p_indices)

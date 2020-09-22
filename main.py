@@ -38,25 +38,26 @@ if __name__ == "__main__":
             A_loss.reset_states()
             brain.noise.reset()
 
-            while True:
+            for _ in range(2000):
                 if RENDER_ENV: env.render()  # render the environment into GUI
 
                 # Recieve state and reward from environment.
                 cur_act = brain.act(tf.expand_dims(prev_state,0), _notrandom=(ep >= WARM_UP) and (random.random() < EPS_GREEDY+(1-EPS_GREEDY)*ep/TOTAL_EPISODES))
                 state, reward, done, _ = env.step(cur_act)
-                brain.remember(prev_state, reward, state)
+                # print(cur_act)
+                brain.remember(prev_state, reward, state, int(done))
 
                 # update weights
                 c, a = brain.learn(brain.buffer.get_batch(unbalance_p=UNBALANCE_P))
                 Q_loss(c)
                 A_loss(a)
 
-                if done: break
-
                 # post update for next step
                 acc_reward(reward)
                 actions_squared(np.square(cur_act/action_space_high))
                 prev_state = state
+
+                if done: break
 
             ep_reward_list.append(acc_reward.result().numpy())
             # Mean of last 40 episodes
