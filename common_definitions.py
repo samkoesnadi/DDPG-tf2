@@ -20,7 +20,7 @@ KERNEL_INITIALIZER = tf.keras.initializers.glorot_normal()
 # KERNEL_INITIALIZER = tf.random_uniform_initializer(-1.5e-3, 1.5e-3)
 
 # buffer params
-UNBALANCE_P = 0.3  # newer entries are prioritized
+UNBALANCE_P = 0.8  # newer entries are prioritized
 BUFFER_UNBALANCE_GAP = 0.5
 
 # training parameters
