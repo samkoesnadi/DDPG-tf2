@@ -4,19 +4,15 @@ from collections import deque
 
 class ReplayBuffer():
     def __init__(self, buffer_size, batch_size):
-        self.buffer = deque()  # (s,a,r,s')
+        self.buffer = deque(maxlen=int(buffer_size))  # (s,a,r,s')
 
         # constant sizes
-        self.buffer_size = buffer_size
         self.batch_size = batch_size
 
         # temp variable
         self.p_indices = [BUFFER_UNBALANCE_GAP/2]
 
     def append(self, s, a, r, sn, d):
-        if len(self.buffer) >= self.buffer_size:
-            self.buffer.popleft()
-
         self.buffer.append([s, a, np.expand_dims(r, -1), sn, np.expand_dims(d, -1)])
 
     def get_batch(self, unbalance_p=True):

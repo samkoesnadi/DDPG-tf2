@@ -12,14 +12,14 @@ def fanin_init(fanin=None):
 
 def ActorNetwork(num_states=24, num_actions=4, action_high=1):
     # Initialize weights between -3e-3 and 3-e3
-    last_init = tf.random_uniform_initializer(minval=-0.0003, maxval=0.0003)
+    last_init = tf.random_normal_initializer(stddev=0.0005)
 
     inputs = tf.keras.layers.Input(shape=(num_states,), dtype=tf.float32)
-    out = tf.keras.layers.BatchNormalization()(inputs)
-    out = tf.keras.layers.Dense(600, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(out)
-    out = tf.keras.layers.BatchNormalization()(out)
+    # out = tf.keras.layers.BatchNormalization()(inputs)
+    out = tf.keras.layers.Dense(600, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(inputs)
+    # out = tf.keras.layers.BatchNormalization()(out)
     out = tf.keras.layers.Dense(300, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(out)
-    out = tf.keras.layers.BatchNormalization()(out)
+    # out = tf.keras.layers.BatchNormalization()(out)
     # out = tf.keras.layers.Dropout(DROUPUT_N)(out)
     outputs = tf.keras.layers.Dense(num_actions, activation="tanh", kernel_initializer=last_init)(out) * action_high
 
@@ -29,25 +29,26 @@ def ActorNetwork(num_states=24, num_actions=4, action_high=1):
 
 def CriticNetwork(num_states=24, num_actions=4, action_high=1):
     # Initialize weights between -3e-3 and 3-e3
-    last_init = tf.random_uniform_initializer(minval=-0.0003, maxval=0.0003)
+    # last_init = tf.random_uniform_initializer(minval=-0.0003, maxval=0.0003)
+    last_init = tf.random_normal_initializer(stddev=0.00005)
 
     # State as input
     state_input = tf.keras.layers.Input(shape=(num_states), dtype=tf.float32)
-    state_out = tf.keras.layers.BatchNormalization()(state_input)
-    state_out = tf.keras.layers.Dense(600, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_out)
+    # state_out = tf.keras.layers.BatchNormalization()(state_input)
+    state_out = tf.keras.layers.Dense(600, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(state_input)
     state_out = tf.keras.layers.BatchNormalization()(state_out)
-    state_out = tf.keras.layers.Dense(300, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(state_out)
+    state_out = tf.keras.layers.Dense(300, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(state_out)
 
     # Action as input
     action_input = tf.keras.layers.Input(shape=(num_actions), dtype=tf.float32)
-    action_out = tf.keras.layers.BatchNormalization()(action_input)
-    action_out = tf.keras.layers.Dense(300, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(action_out/action_high)
+    # action_out = tf.keras.layers.BatchNormalization()(action_input)
+    action_out = tf.keras.layers.Dense(300, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(action_input/action_high)
 
     # Both are passed through seperate layer before concatenating
     added = tf.keras.layers.Add()([state_out, action_out])
 
     added = tf.keras.layers.BatchNormalization()(added)
-    outs = tf.keras.layers.Dense(150, activation="relu", kernel_initializer=KERNEL_INITIALIZER)(added)
+    outs = tf.keras.layers.Dense(150, activation=tf.nn.leaky_relu, kernel_initializer=KERNEL_INITIALIZER)(added)
     outs = tf.keras.layers.BatchNormalization()(outs)
     # outs = tf.keras.layers.Dropout(DROUPUT_N)(outs)
     outputs = tf.keras.layers.Dense(1, kernel_initializer=last_init)(outs)
@@ -87,8 +88,8 @@ class Brain:
         self.noise = OUActionNoise(mean=np.zeros(1), std_deviation=float(std_dev) * np.ones(1))
 
         # optimizers
-        self.critic_optimizer = tf.keras.optimizers.Adam(CRITIC_LR)
-        self.actor_optimizer = tf.keras.optimizers.Adam(ACTOR_LR)
+        self.critic_optimizer = tf.keras.optimizers.Adam(CRITIC_LR, amsgrad=True)
+        self.actor_optimizer = tf.keras.optimizers.Adam(ACTOR_LR, amsgrad=True)
 
         # temporary variable for side effects
         self.cur_action = None
@@ -106,7 +107,7 @@ class Brain:
                 # define target
                 y = r + self.gamma * (1-d) * self.critic_target([sn, self.actor_target(sn)])
                 # define the delta Q
-                critic_loss = tf.math.reduce_mean(tf.math.square(y - self.critic_network([s, a])))
+                critic_loss = tf.math.reduce_mean(tf.math.abs(y - self.critic_network([s, a])))
             critic_grad = tape.gradient(critic_loss, self.critic_network.trainable_variables)
             self.critic_optimizer.apply_gradients(zip(critic_grad, self.critic_network.trainable_variables))
 
