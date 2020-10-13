@@ -6,7 +6,7 @@ import numpy as np
 RL_TASK = 'BipedalWalker-v3'
 # RL_TASK = 'LunarLanderContinuous-v2'
 # RL_TASK = 'Pendulum-v0'
-RENDER_ENV = False
+RENDER_ENV = True
 LEARN = True
 USE_NOISE = True
 CHECKPOINTS_PATH = "./checkpoints/DDPG_"
@@ -30,5 +30,5 @@ BUFFER_SIZE = 1e6
 TOTAL_EPISODES = 10000
 CRITIC_LR = 1e-3
 ACTOR_LR = 1e-4
-WARM_UP = 3  # num of warm up epochs
+WARM_UP = 1  # num of warm up epochs
 SAVE_WEIGHTS = True

@@ -4,8 +4,41 @@ from common_definitions import *
 from buffer import *
 from tqdm import tqdm, trange
 import matplotlib.pyplot as plt
+import argparse
+
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog="Deep Deterministic Policy Gradient (DDPG)", description="Deep Deterministic Policy Gradient (DDPG) in Tensorflow 2")
+    parser.add_argument('--env', type=str, nargs='?', default=RL_TASK,
+                        help='The OpenAI Gym environment to train on')
+    parser.add_argument('--render_env', type=bool, nargs='?', default=RENDER_ENV,
+                        help='Render the environment to be visually visible')
+    parser.add_argument('--train', type=bool, nargs='?', default=LEARN,
+                        help='Train the network on the modified DDPG algorithm')
+    parser.add_argument('--use_noise', type=bool, nargs='?', default=USE_NOISE,
+                        help='OU Noise will be applied to the policy action')
+    parser.add_argument('--eps_greedy', type=float, nargs='?', default=EPS_GREEDY,
+                        help='The epsilon for Epsilon-greedy in the policy\'s action')
+    parser.add_argument('--warm_up', type=bool, nargs='?', default=WARM_UP,
+                        help='Following recommendation from OpenAI Spinning Up, the actions in the early epochs can be set '
+                             'random to increase exploration. This warm up defines how many epochs are initially set to do '
+                             'this.')
+    parser.add_argument('--save_weights', type=bool, nargs='?', default=SAVE_WEIGHTS,
+                        help='Save the weight of the network in the defined checkpoint file directory.')
+
+    args = parser.parse_args()
+    RL_TASK = args.env
+    RENDER_ENV = args.render_env
+    LEARN = args.train
+    USE_NOISE = args.use_noise
+    WARM_UP = args.warm_up
+    SAVE_WEIGHTS = args.save_weights
+    EPS_GREEDY = args.eps_greedy
+
+    parser.print_help()  # print the arg help
+
+
+    # Step 1. create the gym environment
     env = gym.make(RL_TASK)
     # env = gym.make('Pendulum-v0')
     action_space_high = env.action_space.high[0]
