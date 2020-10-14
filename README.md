@@ -14,6 +14,7 @@ Several videos of proof-of-concepts are as such:
 
 ##### Table of Contents  
 - [Why?](#why)  
+- [Changes from original paper](#changes-from-original-paper)
 - [Requirements](#requirements)
 - [Training](#training)
 - [Sampling](#sampling)
