@@ -7,6 +7,11 @@ My implementation of DDPG based on paper https://arxiv.org/abs/1509.02971.
 This implementation also contains some modification of the algorithm that
 are mainly aimed to speed up the learning process.
 
+Several videos of proof-of-concepts are as such:
+- [AI learns how to invert pendulum under 8 minutes](https://youtu.be/lY99ye4hhok)
+- [AI controls the Lunar Lander on Open AI Gym](https://youtu.be/-FMuvFVskBM)
+- [AI speed walks on Open AI Gym's BipedalWalker-v3](https://youtu.be/B95WjH4EP9I)
+
 ##### Table of Contents  
 - [Why?](#why)  
 - [Requirements](#requirements)
