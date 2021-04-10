@@ -95,13 +95,7 @@ class Brain:
         self.cur_action = None
 
         # define update weights
-        @tf.function(input_signature=[
-            tf.TensorSpec(shape=(None, self.num_states), dtype=tf.float32),
-            tf.TensorSpec(shape=(None, self.num_actions), dtype=tf.float32),
-            tf.TensorSpec(shape=(None, 1), dtype=tf.float32),
-            tf.TensorSpec(shape=(None, self.num_states), dtype=tf.float32),
-            tf.TensorSpec(shape=(None, 1), dtype=tf.float32),
-        ])
+        @tf.function
         def update_weights(s, a, r, sn, d):
             with tf.GradientTape() as tape:
                 # define target
