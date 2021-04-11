@@ -1,4 +1,10 @@
-from common_definitions import *
+"""
+Buffer system for the RL
+"""
+
+import numpy as np
+
+from common_definitions import BUFFER_UNBALANCE_GAP
 import random
 from collections import deque
 
@@ -25,13 +31,34 @@ class ReplayBuffer:
         self.p_indices = [BUFFER_UNBALANCE_GAP/2]
 
     def append(self, state, action, r, sn, d):
+        """
+        Append to the Buffer
+
+        Args:
+            state: the state
+            action: the action
+            r: the reward
+            sn: the next state
+            d: done (whether one loop is done or not)
+        """
         self.buffer.append([state, action, np.expand_dims(r, -1), sn, np.expand_dims(d, -1)])
 
     def get_batch(self, unbalance_p=True):
+        """
+        Get the batch randomly from the buffer
+
+        Args:
+            unbalance_p: If true, unbalance probability of taking the batch from buffer with
+            recent event being more prioritized
+
+        Returns:
+            the resulting batch
+        """
         # unbalance indices
         p_indices = None
         if random.random() < unbalance_p:
-            self.p_indices.extend((np.arange(len(self.buffer)-len(self.p_indices))+1)*BUFFER_UNBALANCE_GAP+self.p_indices[-1])
+            self.p_indices.extend((np.arange(len(self.buffer)-len(self.p_indices))+1)
+                                  * BUFFER_UNBALANCE_GAP + self.p_indices[-1])
             p_indices = self.p_indices / np.sum(self.p_indices)
 
         chosen_indices = np.random.choice(len(self.buffer),
@@ -42,14 +69,3 @@ class ReplayBuffer:
         buffer = [self.buffer[chosen_index] for chosen_index in chosen_indices]
 
         return buffer
-
-
-if __name__ == "__main__":
-    rb = ReplayBuffer(10, 5)
-
-    for i in range(100):
-        rb.append(1,2,3,4,5)
-        if i % 10 == 0:
-            (rb.get_batch())
-
-        print(len(rb.buffer))
