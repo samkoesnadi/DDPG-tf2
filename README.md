@@ -3,9 +3,9 @@
 ![python 3](https://img.shields.io/badge/python-3-blue.svg)
 ![tensorflow 2](https://img.shields.io/badge/tensorflow-2-orange.svg)
 
-My implementation of DDPG based on paper https://arxiv.org/abs/1509.02971. 
-This implementation also contains some modification of the algorithm that
-are mainly aimed to speed up the learning process.
+My implementation of DDPG based on paper https://arxiv.org/abs/1509.02971. This implementation is simple and can be used 
+as a boilerplate for your need. It also modifies a bit the original algorithm which mainly aims to speed up the training
+process.
 
 Several videos of proof-of-concepts are as such:
 - [AI learns how to invert pendulum under 8 minutes](https://youtu.be/lY99ye4hhok)
@@ -62,10 +62,13 @@ python3 main.py [-h] [--env [ENV]]
                  [--eps_greedy [EPS_GREEDY]]
                  [--warm_up [WARM_UP]]
                  [--save_weights [SAVE_WEIGHTS]]
+Deep Deterministic Policy Gradient (DDPG) in Tensorflow 2
 
 optional arguments:
   -h, --help            show this help message and exit
-  --env [ENV]           The OpenAI Gym environment to train on
+  --env [ENV]           The OpenAI Gym environment to train on, e.g.
+                        BipedalWalker-v3, LunarLanderContinuous-v2,
+                        Pendulum-v0
   --render_env [RENDER_ENV]
                         Render the environment to be visually visible
   --train [TRAIN]       Train the network on the modified DDPG algorithm
@@ -92,12 +95,12 @@ The pretrained weights can be retrieved from these links:
 
 ## Testing (Sampling)
 Testing is done with the same file as training (`main.py`), but with
-specific parameters as such.
+specific parameters as such. If the weight is available in the checkpoint folder, it will load the weight automatically from there.
 
 ```python3
-python3 main.py --render_env True --train False --use_noise False
-                --eps_greedy 1.0
-                --warm_up 0
+python3 main.py --render_env True --train False --use_noise False \
+                --eps_greedy 1.0 \
+                --warm_up 0 \
                 --save_weights False
 ```
 

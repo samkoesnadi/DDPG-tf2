@@ -1,7 +1,18 @@
-from common_definitions import *
+"""
+The extra classes or function that will be used in the main ones
+"""
+
 import datetime
 
+import numpy as np
+import tensorflow as tf
+
+
 class OUActionNoise:
+    """
+    Noise as defined in the DDPG algorithm
+    """
+
     def __init__(self, mean, std_deviation, theta=0.15, dt=1e-2, x_initial=None):
         self.theta = theta
         self.mean = mean
@@ -30,12 +41,23 @@ class OUActionNoise:
 
 
 class Tensorboard:
+    """
+    Custom tensorboard for the training loop
+    """
+
     def __init__(self, log_dir):
+        """
+        Args:
+            log_dir: directory of the logging
+        """
         current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         train_log_dir = log_dir + current_time + '/train'
         self.train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 
     def __call__(self, epoch, reward, actions_squared, Q_loss, A_loss):
+        """
+        Storing all relevant variables
+        """
         with self.train_summary_writer.as_default():
             tf.summary.scalar('reward', reward.result(), step=epoch)
             tf.summary.scalar('actions squared', actions_squared.result(), step=epoch)
