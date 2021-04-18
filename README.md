@@ -3,7 +3,7 @@
 ![python 3](https://img.shields.io/badge/python-3-blue.svg)
 ![tensorflow 2](https://img.shields.io/badge/tensorflow-2-orange.svg)
 
-My implementation of DDPG based on paper https://arxiv.org/abs/1509.02971. This implementation is simple and can be used 
+My implementation of DDPG based on paper https://arxiv.org/abs/1509.02971, but also highly inspired by https://spinningup.openai.com/en/latest/algorithms/ddpg.html . This implementation is simple and can be used 
 as a boilerplate for your need. It also modifies a bit the original algorithm which mainly aims to speed up the training
 process.
 
