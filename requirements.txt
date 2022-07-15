@@ -1,4 +1,4 @@
-tensorflow-gpu==2.4.0
+tensorflow-gpu==2.7.2
 tqdm==4.37.0
 gym==0.17.2
 box2d-py==2.3.8
