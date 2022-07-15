@@ -1,5 +1,5 @@
 """
-Main file
+Run the model in training or testing mode
 """
 import argparse
 import logging
@@ -92,7 +92,7 @@ if __name__ == "__main__":
                 if RENDER_ENV:  # render the environment into GUI
                     env.render()
 
-                # Recieve state and reward from environment.
+                # Receive state and reward from environment.
                 cur_act = brain.act(tf.expand_dims(prev_state, 0), _notrandom=(ep >= WARM_UP) and
                                     (random.random() < EPS_GREEDY+(1-EPS_GREEDY)*ep/TOTAL_EPISODES),
                                     noise=USE_NOISE)
