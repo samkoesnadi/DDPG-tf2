@@ -7,10 +7,13 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from common_definitions import (KERNEL_INITIALIZER, GAMMA, RHO, STD_DEV, BUFFER_SIZE, BATCH_SIZE,
-                                CRITIC_LR, ACTOR_LR)
-from buffer import ReplayBuffer
-from utils import OUActionNoise
+from src.common_definitions import (
+    KERNEL_INITIALIZER, GAMMA, RHO,
+    STD_DEV, BUFFER_SIZE, BATCH_SIZE,
+    CRITIC_LR, ACTOR_LR
+)
+from src.buffer import ReplayBuffer
+from src.utils import OUActionNoise
 
 
 def ActorNetwork(num_states=24, num_actions=4, action_high=1):
@@ -83,27 +86,15 @@ def CriticNetwork(num_states=24, num_actions=4, action_high=1):
     return model
 
 
-def update_target(model_target, model_ref, rho=0):
-    """
-    Update target's weights with the given model reference
-
-    Args:
-        model_target: the target model to be changed
-        model_ref: the reference model
-        rho: the ratio of the new and old weights
-    """
-    model_target.set_weights([rho * ref_weight + (1 - rho) * target_weight
-                              for (target_weight, ref_weight) in
-                              list(zip(model_target.get_weights(), model_ref.get_weights()))])
-
-
-class Brain:
+class Brain:  # pylint: disable=too-many-instance-attributes
     """
     The Brain that contains all the models
     """
 
-    def __init__(self, num_states, num_actions, action_high, action_low, gamma=GAMMA, rho=RHO,
-                 std_dev=STD_DEV):
+    def __init__(
+        self, num_states, num_actions, action_high, action_low, gamma=GAMMA, rho=RHO,
+        std_dev=STD_DEV
+    ):  # pylint: disable=too-many-arguments
         # initialize everything
         self.actor_network = ActorNetwork(num_states, num_actions, action_high)
         self.critic_network = CriticNetwork(num_states, num_actions, action_high)
@@ -162,6 +153,24 @@ class Brain:
 
         self.update_weights = update_weights
 
+    @staticmethod
+    def _update_target(model_target, model_ref, rho=0):
+        """
+        Update target's weights with the given model reference
+
+        Args:
+            model_target: the target model to be changed
+            model_ref: the reference model
+            rho: the ratio of the new and old weights
+        """
+        model_target.set_weights(
+            [
+                rho * ref_weight + (1 - rho) * target_weight
+                for (target_weight, ref_weight)
+                in list(zip(model_target.get_weights(), model_ref.get_weights()))
+            ]
+        )
+
     def act(self, state, _notrandom=True, noise=True):
         """
         Run action by the actor network
@@ -174,13 +183,15 @@ class Brain:
         Returns:
             the resulting action
         """
-        self.cur_action = (self.actor_network(state)[0].numpy()
-                           if _notrandom
-                           else (np.random.uniform(self.action_low, self.action_high,
-                                                   self.num_actions)) +
-                                (self.noise() if noise else 0))
-        self.cur_action = np.clip(self.cur_action, self.action_low, self.action_high)
+        if _notrandom:
+            self.cur_action = self.actor_network(state)[0].numpy()
+        else:
+            self.cur_action = (
+                np.random.uniform(self.action_low, self.action_high, self.num_actions)
+                + (self.noise() if noise else 0)
+            )
 
+        self.cur_action = np.clip(self.cur_action, self.action_low, self.action_high)
         return self.cur_action
 
     def remember(self, prev_state, reward, state, done):
@@ -202,8 +213,8 @@ class Brain:
                                        tf.convert_to_tensor(sn, dtype=tf.float32),
                                        tf.convert_to_tensor(d, dtype=tf.float32))
 
-        update_target(self.actor_target, self.actor_network, self.rho)
-        update_target(self.critic_target, self.critic_network, self.rho)
+        self._update_target(self.actor_target, self.actor_network, self.rho)
+        self._update_target(self.critic_target, self.critic_network, self.rho)
 
         return c_l, a_l
 

@@ -3,9 +3,11 @@
 ![python 3](https://img.shields.io/badge/python-3-blue.svg)
 ![tensorflow 2](https://img.shields.io/badge/tensorflow-2-orange.svg)
 
+Looking at Reinforcement Learning, there are two kinds of action space, namely discrete and continuous. The continuous action space represents the continuous movement a robot can have when actuating. I was bias towards the continuous one at the time of having the idea to write the DDPG implementation. I find that the continuous one can provide a smoother movement, which may be benefitial to control robotic actuator. DDPG is an approach to do so. The source code is available here https://github.com/samuelmat19/DDPG-tf2
+
 My implementation of DDPG based on paper https://arxiv.org/abs/1509.02971, but also highly inspired by https://spinningup.openai.com/en/latest/algorithms/ddpg.html . This implementation is simple and can be used 
 as a boilerplate for your need. It also modifies a bit the original algorithm which mainly aims to speed up the training
-process.
+process. I would highly recommend to use Spinning Up library as it provides more algorithm options. This repository is suitable if direct modification to Tensorflow 2 model or simple training API is favorable.
 
 Several videos of proof-of-concepts are as such:
 - [AI learns how to invert pendulum under 8 minutes](https://youtu.be/lY99ye4hhok)
@@ -51,39 +53,14 @@ than the earlier ones. This reduces repetitive current mistakes that the agent
 does.
 
 ## Requirements
-`pip3 install -r requirements.txt`
+`pip3 install ddpg-tf2`
 
 ## Training
-```python3
-python3 main.py [-h] [--env [ENV]]
-                 [--render_env [RENDER_ENV]]
-                 [--train [TRAIN]]
-                 [--use_noise [USE_NOISE]]
-                 [--eps_greedy [EPS_GREEDY]]
-                 [--warm_up [WARM_UP]]
-                 [--save_weights [SAVE_WEIGHTS]]
-Deep Deterministic Policy Gradient (DDPG) in Tensorflow 2
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --env [ENV]           The OpenAI Gym environment to train on, e.g.
-                        BipedalWalker-v3, LunarLanderContinuous-v2,
-                        Pendulum-v0
-  --render_env [RENDER_ENV]
-                        Render the environment to be visually visible
-  --train [TRAIN]       Train the network on the modified DDPG algorithm
-  --use_noise [USE_NOISE]
-                        OU Noise will be applied to the policy action
-  --eps_greedy [EPS_GREEDY]
-                        The epsilon for Epsilon-greedy in the policy's action
-  --warm_up [WARM_UP]   Following recommendation from OpenAI Spinning Up, the
-                        actions in the early epochs can be set random to
-                        increase exploration. This warm up defines how many
-                        epochs are initially set to do this.
-  --save_weights [SAVE_WEIGHTS]
-                        Save the weight of the network in the defined
-                        checkpoint file directory.
+```python3
+ddpg-tf2 --train True --use-noise True
 ```
+
 After every epoch, the network's weights will be stored in the checkpoints directory defined in `common_definitions.py`.
 There are 4 weights files that represent each networks, namely critic network,
 actor network, target critic, and target actor. 
@@ -94,19 +71,18 @@ The pretrained weights can be retrieved from these links:
 - [LunarLanderContinuous-v2](https://github.com/samuelmat19/DDPG-tf2/releases/download/0.0.2/Lunar_checkpoints.zip)
 
 ## Testing (Sampling)
-Testing is done with the same file as training (`main.py`), but with
+
+Testing is done by the similar executable, but with
 specific parameters as such. If the weight is available in the checkpoint folder, it will load the weight automatically from there.
 
 ```python3
-python3 main.py --render_env True --train False --use_noise False \
-                --eps_greedy 1.0 \
-                --warm_up 0 \
-                --save_weights False
+ddpg-tf2 --train False --use-noise False
 ```
 
 ## Future improvements
 - [ ] Improve documentation
-- [ ] ...
+- [x] GitHub Workflow
+- [x] Publish to PyPI
 
 ## CONTRIBUTING
 To contribute to the project, these steps can be followed. Anyone that contributes will surely be recognized and mentioned here!
