@@ -40,11 +40,11 @@ def main():  # pylint: disable=too-many-locals, too-many-statements
                         help='Render the environment to be visually visible')
     parser.add_argument('--train', type=bool, nargs='?', required=True,
                         help='Train the network on the modified DDPG algorithm')
-    parser.add_argument('--use_noise', type=bool, nargs='?', required=True,
+    parser.add_argument('--use-noise', type=bool, nargs='?', required=True,
                         help='OU Noise will be applied to the policy action')
-    parser.add_argument('--eps_greedy', type=float, nargs='?', default=0.95,
+    parser.add_argument('--eps-greedy', type=float, nargs='?', default=0.95,
                         help="The epsilon for Epsilon-greedy in the policy's action")
-    parser.add_argument('--warm_up', type=bool, nargs='?', default=1,
+    parser.add_argument('--warm-up', type=bool, nargs='?', default=1,
                         help='Following recommendation from OpenAI Spinning Up, the actions in the '
                              'early epochs can be set random to increase exploration. This warm up '
                              'defines how many epochs are initially set to do this.')
