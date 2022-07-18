@@ -25,7 +25,7 @@ REQUIRED = [
 
 setuptools.setup(
   name=PACKAGE_NAME,
-  version='1.0.0',
+  version='1.0.1',
   description="""
     Simple yet effective DDPG implementation for continuous action space,
     written in Tensorflow 2
