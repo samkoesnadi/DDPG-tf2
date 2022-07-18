@@ -3,9 +3,11 @@
 ![python 3](https://img.shields.io/badge/python-3-blue.svg)
 ![tensorflow 2](https://img.shields.io/badge/tensorflow-2-orange.svg)
 
+Looking at Reinforcement Learning, there are two kinds of action space, namely discrete and continuous. The continuous action space represents the continuous movement a robot can have when actuating. I was bias towards the continuous one at the time of having the idea to write the DDPG implementation. I find that the continuous one can provide a smoother movement, which may be benefitial to control robotic actuator. DDPG is an approach to do so.
+
 My implementation of DDPG based on paper https://arxiv.org/abs/1509.02971, but also highly inspired by https://spinningup.openai.com/en/latest/algorithms/ddpg.html . This implementation is simple and can be used 
 as a boilerplate for your need. It also modifies a bit the original algorithm which mainly aims to speed up the training
-process.
+process. I would highly recommend to use Spinning Up library as it provides more algorithm options. This repository is suitable if direct modification to Tensorflow 2 model or simple training API is favorable.
 
 Several videos of proof-of-concepts are as such:
 - [AI learns how to invert pendulum under 8 minutes](https://youtu.be/lY99ye4hhok)
@@ -106,7 +108,8 @@ python3 main.py --render_env True --train False --use_noise False \
 
 ## Future improvements
 - [ ] Improve documentation
-- [ ] ...
+- [ ] GitHub Workflow
+- [ ] Publish to PyPI
 
 ## CONTRIBUTING
 To contribute to the project, these steps can be followed. Anyone that contributes will surely be recognized and mentioned here!
