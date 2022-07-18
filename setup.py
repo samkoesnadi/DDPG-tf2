@@ -18,7 +18,7 @@ REQUIRED = [
   "gym==0.17.2",
   "box2d-py==2.3.8",
   "matplotlib==3.1.1",
-  "pytest==2.9.1",
+  "pytest==7.1.2",
   "bandit==1.7.4",
   "pylint==2.14.4"
 ]
