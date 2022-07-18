@@ -2,10 +2,15 @@
 A package to train and infer DDPG Tensorflow 2
 """
 
+from pathlib import Path
 import setuptools
 from setuptools import find_packages
 
 PACKAGE_NAME: str = "ddpg-tf2"
+
+# read the contents of your README file
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 REQUIRED = [
   "tensorflow-gpu==2.7.2",
@@ -25,6 +30,8 @@ setuptools.setup(
     Simple yet effective DDPG implementation for continuous action space,
     written in Tensorflow 2
   """,
+  long_description=long_description,
+  long_description_content_type='text/markdown',
   author="Samuel Matthew Koesnadi",
   author_email="samuelmat19@gmail.com",
   install_requires=REQUIRED,

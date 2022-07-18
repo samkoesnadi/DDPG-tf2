@@ -55,4 +55,4 @@ jobs:
         python -m pip install .
     - name: Checking the test codes using Pytest
       run: |
-        pytest .
+        python -m pytest .
