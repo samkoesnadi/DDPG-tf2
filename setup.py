@@ -20,7 +20,8 @@ REQUIRED = [
   "matplotlib==3.1.1",
   "pytest==7.1.2",
   "bandit==1.7.4",
-  "pylint==2.14.4"
+  "pylint==2.14.4",
+  "protobuf==3.20.0"
 ]
 
 setuptools.setup(
