@@ -40,3 +40,6 @@ setuptools.setup(
     'console_scripts': [f'{PACKAGE_NAME}=src.command_line:main'],
   }
 )
+  "protobuf==3.20.x",
+=======
+  "protobuf==3.20.x",
