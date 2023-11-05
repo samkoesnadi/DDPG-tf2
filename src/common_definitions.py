@@ -2,7 +2,10 @@
 Common definitions of variables that can be used across files
 """
 
-from tensorflow.keras.initializers import glorot_normal  # pylint: disable=no-name-in-module
+try:
+    from tensorflow.keras.initializers import glorot_normal  # pylint: disable=no-name-in-module
+except ImportError:
+    print("TensorFlow could not be imported. Please ensure that TensorFlow is installed and the version is compatible.")
 
 # brain parameters
 GAMMA = 0.99  # for the temporal difference
